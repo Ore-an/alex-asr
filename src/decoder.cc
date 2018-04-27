@@ -275,6 +275,12 @@ namespace alex_asr {
             ok = ok && RescoreLattice(pruned_lat, lat);
         }
 
+	if (config_->model_type == DecoderConfig::NNET3) {
+	    if (config_->post_decode_acwt != 1.0) { 
+	        PostDecodeAMRescore(*lat, config_->post_decode_acwt);
+	    }
+	}
+
         return ok;
     }
 
@@ -313,7 +319,25 @@ namespace alex_asr {
 
         return rescored_lattice->Start() != fst::kNoStateId;
     }
+  
+  void Decoder::PostDecodeAMRescore(CompactLattice lat,
+				    double acoustic_scale) {
 
+        Lattice lattice;
+        ConvertLattice(lat, &lattice);
+
+	std::vector<std::vector<double> > scale(2);
+	scale[0].resize(2);
+	scale[1].resize(2);
+	scale[0][0] = 1.0; // lm scale
+	scale[0][1] = 0; // acoustic cost to lm cost scaling 
+	scale[1][0] = 0.0; // lm cost to acoustic cost scaling
+	scale[1][1] = acoustic_scale;
+	
+        fst::ScaleLattice(scale, &lattice);
+	
+    }
+  
     bool Decoder::GetLattice(fst::VectorFst<fst::LogArc> *fst_out,
                                      double *tot_lik, bool end_of_utterance) {
         CompactLattice lat;

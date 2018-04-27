@@ -79,7 +79,8 @@ namespace alex_asr {
             float lm_scale,
             fst::MapFst<fst::StdArc, LatticeArc, fst::StdToLatticeMapper<BaseFloat> > *lm_fst,
             CompactLattice *rescored_lattice);
-        bool FileExists(const std::string& name);
+	void PostDecodeAMRescore(CompactLattice lat, double acoustic_scale);
+	bool FileExists(const std::string& name);
     };
 
 /// @} end of "addtogroup online_latgen"

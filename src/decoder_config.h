@@ -51,7 +51,8 @@ namespace alex_asr {
         ModelType model_type;
         FeatureType feature_type;
         int32 bits_per_sample;
-
+	double post_decode_acwt;
+	
         bool use_lda;
         bool use_splice;
         bool use_delta;
