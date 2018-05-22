@@ -271,18 +271,19 @@ namespace alex_asr {
 
 
         bool ok = decoder_->GetRawLattice(&raw_lat);
-        if (config_->model_type == DecoderConfig::NNET3) {
-            if (config_->post_decode_acwt != 1.0) {
-                PostDecodeAMRescore(&raw_lat, config_->post_decode_acwt);
-            }
-        }
-
+	
+	if (config_->model_type == DecoderConfig::NNET3) {
+	  if ((config_->post_decode_acwt != 1.0) && (config_->rescore)) {
+	        PostDecodeAMRescore(&raw_lat, config_->post_decode_acwt);
+	    }
+	}
+	KALDI_LOG << "LM rescoring: " << config_->rescore;
         BaseFloat lat_beam = config_->decoder_opts.lattice_beam;
         if(!config_->rescore) {
             DeterminizeLatticePhonePrunedWrapper(*trans_model_, &raw_lat, lat_beam, lat, config_->decoder_opts.det_opts);
         } else {
             CompactLattice pruned_lat;
-
+	    KALDI_LOG << "Rescoring with bigger LM";
             DeterminizeLatticePhonePrunedWrapper(*trans_model_, &raw_lat, lat_beam, &pruned_lat, config_->decoder_opts.det_opts);
             ok = ok && RescoreLattice(pruned_lat, lat);
         }
