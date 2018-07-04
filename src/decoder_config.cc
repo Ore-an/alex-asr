@@ -77,12 +77,13 @@ namespace alex_asr {
         KALDI_VLOG(2) << "Reading master config file: " << cfg_file;
         po.ReadConfigFile(cfg_file);
 
-        if(model_type_str == "nnet3") {
+	if(model_type_str == "nnet3") {
             LoadConfig(cfg_decodable, &nnet3_decodable_opts);
         } else {
             LoadConfig(cfg_decodable, &decodable_opts);
         }
 
+	
         LoadConfig(cfg_decoder, &decoder_opts);
         LoadConfig(cfg_mfcc, &mfcc_opts);
         LoadConfig(cfg_fbank, &fbank_opts);
@@ -94,7 +95,6 @@ namespace alex_asr {
         LoadConfig(cfg_pitch, &pitch_opts);
         LoadConfig(cfg_pitch_process, &pitch_process_opts);
 
-        InitAux();
     }
 
     void DecoderConfig::InitAux() {
@@ -132,7 +132,7 @@ namespace alex_asr {
     }
 
     void DecoderConfig::LoadIvector() {
-        KALDI_LOG << "Loading IVector extraction info.";
+      KALDI_VLOG(2) << "Loading IVector extraction info.";
         ivector_extraction_info = new OnlineIvectorExtractionInfo(ivector_config);
     }
 
@@ -195,13 +195,14 @@ namespace alex_asr {
             KALDI_ERR << "You have to specify a valid feature_type.";
         }
 
-        res &= OptionCheck(use_ivectors && cfg_ivector == "",
+	res &= OptionCheck(use_ivectors && cfg_ivector == "",
                            "You have to specify --cfg_ivector if you want to use ivectors.");
         res &= OptionCheck(use_cmvn && fcmvn_mat_rspecifier == "",
                            "You have to specify --cfg_cmvn if you want to use CMVN.");
         res &= OptionCheck(use_pitch && cfg_pitch == "",
                            "You have to specify --cfg_pitch if you want to use pitch.");
-
+	res &= OptionCheck(rescore && (lm_small_rxfilename == "" || lm_big_rxfilename == ""),
+                           "You have to specify --lm_small and --lm_big if you want to rescore with a bigger LM.");
         res &= OptionCheck(model_rxfilename == "",
                            "You have to specify --model.");
 
@@ -215,6 +216,8 @@ namespace alex_asr {
                            "You have to specify --mat_lda or set --use_lda=false.");
 
         return res;
+
+	InitAux();
     }
 
     bool DecoderConfig::OptionCheck(bool cond, std::string fail_text) {

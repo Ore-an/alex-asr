@@ -76,6 +76,7 @@ namespace alex_asr {
             KALDI_ERR << "Error when checking if the configuration is valid. "
                     "Please check your configuration.";
         }
+
     }
 
     bool Decoder::FileExists(const std::string& name) {
@@ -277,14 +278,13 @@ namespace alex_asr {
 	        PostDecodeAMRescore(&raw_lat, config_->post_decode_acwt);
 	    }
 	}
-	KALDI_LOG << "LM rescoring: " << config_->rescore;
+	
         BaseFloat lat_beam = config_->decoder_opts.lattice_beam;
         if(!config_->rescore) {
             DeterminizeLatticePhonePrunedWrapper(*trans_model_, &raw_lat, lat_beam, lat, config_->decoder_opts.det_opts);
         } else {
             CompactLattice pruned_lat;
-	    KALDI_LOG << "Rescoring with bigger LM";
-            DeterminizeLatticePhonePrunedWrapper(*trans_model_, &raw_lat, lat_beam, &pruned_lat, config_->decoder_opts.det_opts);
+	    DeterminizeLatticePhonePrunedWrapper(*trans_model_, &raw_lat, lat_beam, &pruned_lat, config_->decoder_opts.det_opts);
             ok = ok && RescoreLattice(pruned_lat, lat);
         }
 
